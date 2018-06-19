@@ -5,8 +5,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+
 import com.karthik.rest.business.service.model.Employee;
 import com.karthik.rest.dao.EmployeeDao;
+import com.karthik.rest.exception.BadRequestException;
 import com.karthik.rest.exception.DoesNotExistException;
 
 public class EmployeeService {
@@ -56,18 +58,21 @@ public class EmployeeService {
 		return EmployeeDao.getEmployees().subList(start-1, start + pagesize -1);
 	}
 	
-	public Employee update(Long empId, Employee employee) {
+	public Employee update(Long empId, Employee employee) throws DoesNotExistException, BadRequestException {
 		Employee emp = EmployeeDao.employees.get(empId);
 		
-		if (emp != null && employee instanceof Employee) {
-			employee.setLastModified(new Date());
-			EmployeeDao.employees.put(empId, employee);
-			return employee;
-		} 
-		else {
-			System.err.println("Could not find employee");
+		if (emp == null) {
+			throw new DoesNotExistException("Employee " + empId +" does not exist");
 		}
-		return null;
+		
+		if (!(employee instanceof Employee)) {
+			throw new BadRequestException("Bad request data");
+		}
+		
+		employee.setLastModified(new Date());
+		EmployeeDao.employees.put(empId, employee);
+		
+		return employee; 
 	}
 	
 	public void delete(Long empId) {

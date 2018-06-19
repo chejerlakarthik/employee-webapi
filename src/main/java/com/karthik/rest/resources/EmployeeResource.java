@@ -20,6 +20,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.karthik.rest.business.service.EmployeeService;
 import com.karthik.rest.business.service.model.Employee;
+import com.karthik.rest.exception.BadRequestException;
 import com.karthik.rest.exception.DoesNotExistException;
 import com.karthik.rest.params.EmployeeBeanParam;
 
@@ -31,18 +32,22 @@ public class EmployeeResource {
 	private EmployeeService service = new EmployeeService();
 
 	@GET
-	public List<Employee> getAll(@BeanParam EmployeeBeanParam paramsBean, @Context UriInfo uriInfo) {
+	public Response getAll(@BeanParam EmployeeBeanParam paramsBean, @Context UriInfo uriInfo) {
+		
+		List<Employee> employees = new ArrayList<Employee>();
 		// Filtering parameters
 		if (paramsBean.getYear() != null && paramsBean.getYear() > 0) {
-			return service.readAllFilteredByYear(paramsBean.getYear());
+			employees = service.readAllFilteredByYear(paramsBean.getYear());
+			return Response.ok().entity(employees).build();
 		}
+		
 		// Pagination parameters
 		if (paramsBean.getStart() != null && paramsBean.getSize() != null 
 				&& paramsBean.getStart() > 0 && paramsBean.getSize() > 0) {
-			return service.readAllPaginated(paramsBean.getStart(), paramsBean.getSize());
+			employees = service.readAllPaginated(paramsBean.getStart(), paramsBean.getSize());
+			return Response.ok().entity(employees).build();
 		}
 
-		List<Employee> employees = new ArrayList<Employee>();
 		for (Employee employee : service.readAll()) {
 			String eid = String.valueOf(employee.getEmpId());
 			
@@ -53,12 +58,12 @@ public class EmployeeResource {
 			employee.addLink(linkToAssets(uriInfo, eid), "assets");
 			employees.add(employee);
 		}
-		return employees;
+		return Response.ok().entity(employees).build();
 	}
 
 	@GET
 	@Path("/{empId}")
-	public Employee get(@PathParam(value = "empId") Long empId, @Context UriInfo uriInfo) throws DoesNotExistException {
+	public Response get(@PathParam(value = "empId") Long empId, @Context UriInfo uriInfo) throws DoesNotExistException {
 		Employee employee = service.read(empId);
 		String eid = String.valueOf(empId);
 		
@@ -67,7 +72,8 @@ public class EmployeeResource {
 				
 		employee.addLink(linkToSelf(uriInfo, eid), "self");
 		employee.addLink(linkToAssets(uriInfo, eid), "assets");
-		return employee;
+		
+		return Response.ok().entity(employee).build();
 	}
 
 	private String linkToSelf(UriInfo uriInfo, String empId) {
@@ -100,14 +106,16 @@ public class EmployeeResource {
 
 	@PUT
 	@Path("/{empId}")
-	public Employee update(@PathParam(value="empId") Long empId, Employee employee) {
-		return service.update(empId, employee);
+	public Response update(@PathParam(value="empId") Long empId, Employee employee) throws DoesNotExistException, BadRequestException{
+		Employee updatedEmployee = service.update(empId, employee);
+		return Response.ok().entity(updatedEmployee).build();
 	}
 
 	@DELETE
 	@Path("/{empId}")
-	public void delete(Long empId) {
+	public Response delete(@PathParam(value="empId") Long empId) {
 		service.delete(empId);
+		return Response.noContent().build();
 	}
 	
 	@Path("/{empId}/assets")
