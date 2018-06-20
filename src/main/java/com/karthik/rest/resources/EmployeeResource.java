@@ -30,9 +30,11 @@ import com.karthik.rest.params.EmployeeBeanParam;
 public class EmployeeResource {
 
 	private EmployeeService service = new EmployeeService();
+	
+	@Context UriInfo uriInfo;
 
 	@GET
-	public Response getAll(@BeanParam EmployeeBeanParam paramsBean, @Context UriInfo uriInfo) {
+	public Response getAll(@BeanParam EmployeeBeanParam paramsBean) {
 		
 		List<Employee> employees = new ArrayList<Employee>();
 		// Filtering parameters
@@ -54,8 +56,8 @@ public class EmployeeResource {
 			//First reset the links
 			employee.resetLinks();
 			
-			employee.addLink(linkToSelf(uriInfo, eid), "self");
-			employee.addLink(linkToAssets(uriInfo, eid), "assets");
+			employee.addLink(linkToSelf(eid), "self");
+			employee.addLink(linkToAssets(eid), "assets");
 			employees.add(employee);
 		}
 		return Response.ok().entity(employees).build();
@@ -63,20 +65,20 @@ public class EmployeeResource {
 
 	@GET
 	@Path("/{empId}")
-	public Response get(@PathParam(value = "empId") Long empId, @Context UriInfo uriInfo) throws DoesNotExistException {
+	public Response get(@PathParam(value = "empId") Long empId) throws DoesNotExistException {
 		Employee employee = service.read(empId);
 		String eid = String.valueOf(empId);
 		
 		//First reset the links
 		employee.resetLinks();
 				
-		employee.addLink(linkToSelf(uriInfo, eid), "self");
-		employee.addLink(linkToAssets(uriInfo, eid), "assets");
+		employee.addLink(linkToSelf(eid), "self");
+		employee.addLink(linkToAssets(eid), "assets");
 		
 		return Response.ok().entity(employee).build();
 	}
 
-	private String linkToSelf(UriInfo uriInfo, String empId) {
+	private String linkToSelf(String empId) {
 		return uriInfo.getBaseUriBuilder()
 					  .path(EmployeeResource.class)
 					  .path(empId)
@@ -84,7 +86,7 @@ public class EmployeeResource {
 					  .toString();
 	}
 	
-	private String linkToAssets(UriInfo uriInfo, String empId) {
+	private String linkToAssets(String empId) {
 		return uriInfo.getBaseUriBuilder()
 					  .path(EmployeeResource.class)
 					  .path(EmployeeResource.class, "getAssetResource")
@@ -95,7 +97,7 @@ public class EmployeeResource {
 	}
 
 	@POST
-	public Response add(Employee employee, @Context UriInfo uriInfo) {
+	public Response add(Employee employee) {
 		Employee newEmployee = service.add(employee);
 		String newId = String.valueOf(newEmployee.getEmpId());
 		URI newResourceLocation = uriInfo.getAbsolutePathBuilder().path(newId).build();
