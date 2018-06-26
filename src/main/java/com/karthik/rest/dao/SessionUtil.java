@@ -23,7 +23,11 @@ public class SessionUtil {
 	}
 	
 	public static Session getSession() {
-		return getInstance().sessionFactory.openSession();
+		Session session = getInstance().sessionFactory.getCurrentSession();
+		if (session == null) {
+			session = getInstance().sessionFactory.openSession();
+		}
+		return session;
 	}
 
 }

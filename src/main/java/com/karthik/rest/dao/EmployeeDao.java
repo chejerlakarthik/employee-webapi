@@ -9,56 +9,58 @@ import com.karthik.rest.business.service.model.Employee;
 
 public class EmployeeDao {
 	
-	public List<Employee> getAll(){
-		
-		@SuppressWarnings("unchecked")
-		Query<Employee> query = getSession().createQuery("FROM Employee");
-		List<Employee> list = query.list();
-		getSession().close();
-		
-		return list;
-	}
-	
-	public Employee addEmployee(Employee employee) {
-		beginTransaction();
-		getSession().save(employee);
-		commitTransaction();
-		return employee;
-	}
-
 	protected Session getSession() {
 		return SessionUtil.getSession();
 	}
 	
-	protected void beginTransaction() {
-		getSession().getTransaction().begin();
+	protected Session beginTransaction() {
+		Session session = getSession();
+		session.beginTransaction();
+		return session;
 	}
 	
-	protected void commitTransaction() {
+	protected void commitTransaction(Session session) {
+		session.getTransaction().commit();
+		session.close();
+	}
+	
+	public List<Employee> getAll() {
+		Session session = beginTransaction();
+		@SuppressWarnings("unchecked")
+		Query<Employee> query = getSession().createQuery("FROM Employee");
+		List<Employee> list = query.list();
+		commitTransaction(session);
+		return list;
+	}
+	
+	public Employee addEmployee(Employee employee) {
+		getSession().beginTransaction();
+		getSession().save(employee);
 		getSession().getTransaction().commit();
-		getSession().close();
+		return employee;
 	}
 
 	public Employee get(Long empId) {
+		Session session = beginTransaction();
 		Employee employee = getSession().get(Employee.class, empId);
-		getSession().close();
+		commitTransaction(session);
 		return employee;
 	}
 
 	public Employee update(Employee employee) {
-		beginTransaction();
+		Session session = beginTransaction();
 		getSession().persist(employee);
-		commitTransaction();
+		commitTransaction(session);
 		return employee;
 	}
 
 	public void remove(Long empId) {
-		beginTransaction();
+		Session session = beginTransaction();
 		Employee employee = getSession().get(Employee.class, empId);
 		if (employee != null) {
 			getSession().remove(employee);
 		}
-		commitTransaction();
+		commitTransaction(session);
 	}
 
 }

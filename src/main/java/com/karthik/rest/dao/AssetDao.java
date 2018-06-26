@@ -1,34 +1,54 @@
 package com.karthik.rest.dao;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
+
 import com.karthik.rest.business.service.model.Asset;
+import com.karthik.rest.business.service.model.Employee;
+import com.karthik.rest.exception.DoesNotExistException;
 
 public class AssetDao {
 
-	public static Map<Long, Map<Integer, Asset>> assets = new HashMap<Long, Map<Integer,Asset>>();
+	protected Session getSession() {
+		return SessionUtil.getSession();
+	}
 	
-	static {
-		Map<Integer, Asset> assetsMap = new HashMap<Integer, Asset>();
-		assetsMap.put(1001, new Asset(1001, "Laptop", "Dell Latitude"));
-		assetsMap.put(1002, new Asset(1002, "Mobile", "Apple iPhone 6S"));
-		
-		AssetDao.assets.put(1L, assetsMap);
-		
-		assetsMap = new HashMap<Integer, Asset>();
-		assetsMap.put(2001, new Asset(2001, "Laptop", "HP Spectre"));
-		assetsMap.put(2002, new Asset(2002, "Mobile", "OnePlus 6"));
-		
-		AssetDao.assets.put(2L, assetsMap);
+	protected Session beginTransaction() {
+		Session session = getSession();
+		session.beginTransaction();
+		return session;
+	}
+	
+	protected void commitTransaction(Session session) {
+		session.getTransaction().commit();
+		session.close();
 	}
 
-	public static List<Asset> getEmployeeAssets(Long empId) {
-		List<Asset> employeeAssets = new ArrayList<Asset>();
-		employeeAssets.addAll(assets.get(empId).values());
-		return employeeAssets;
+	public List<Asset> getAll(Long empId) throws DoesNotExistException {
+		Session session = beginTransaction();
+		Employee employee = getSession().get(Employee.class, empId);
+		if (employee == null) {
+			throw new DoesNotExistException("Employee " + empId + " does not exist");
+		}
+		Collection<Asset> employeeAssets = employee.getAssets();
+		commitTransaction(session);
+		return employeeAssets.isEmpty() ? new ArrayList<Asset>() : new ArrayList<Asset>() ;
+	}
+	
+	public Asset tagAssetToEmployee(Long empId, Asset asset) {
+		Employee employee = getSession().get(Employee.class, empId);
+		employee.getAssets().add(asset);
+		getSession().save(employee);
+		return asset;
+	}
+
+	public Map<Integer, Asset> get(Long empId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

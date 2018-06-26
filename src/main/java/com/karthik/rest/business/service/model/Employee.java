@@ -1,11 +1,15 @@
 package com.karthik.rest.business.service.model;
 
+import java.util.Collection;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -16,6 +20,9 @@ public class Employee extends RestResource {
 	private Long empId;
 	private String empName;
 	private Date lastModified;
+	
+	@OneToMany(mappedBy="employee", cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+	private Collection<Asset> assets;
 	
 	// The no-arg constructor is a must for Serialization - JSON or XML.
 	public Employee() {}
@@ -48,6 +55,14 @@ public class Employee extends RestResource {
 
 	public void setLastModified(Date lastModified) {
 		this.lastModified = lastModified;
+	}
+
+	public Collection<Asset> getAssets() {
+		return assets;
+	}
+
+	public void setAssets(Collection<Asset> assets) {
+		this.assets = assets;
 	}
 
 }
