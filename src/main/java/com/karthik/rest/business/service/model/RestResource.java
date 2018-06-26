@@ -3,10 +3,13 @@ package com.karthik.rest.business.service.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Transient;
+
 import com.karthik.rest.hateoas.Link;
 
 public class RestResource {
 
+	@Transient
 	private List<Link> links = new ArrayList<Link>();
 
 	public List<Link> getLinks() {

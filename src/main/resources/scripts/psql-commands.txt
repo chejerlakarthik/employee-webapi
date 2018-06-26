@@ -1,0 +1,123 @@
+To Connect to a Postgres database from commandline using psql:
+--------------------------------------------------------------
+psql <DBNAME> <USERNAME>
+
+More options: psql -h <hostname> -p <port>
+
+
+
+
+Create a database:
+------------------
+create database <database-name>;
+
+Example:
+========
+create database spring_data_demo; (Shortcut => createdb spring_data_demo;)
+
+
+
+
+List all databases:
+-------------------
+\list
+
+
+
+
+List all Schemas:
+-----------------
+\dn
+
+
+
+
+List all users:
+---------------
+\du
+
+
+
+
+Delete (drop) a database:
+-------------------------
+drop database <database-name>;
+
+
+
+
+Create Schema:
+-------------
+Create schema <schemaname>;
+
+Example:
+========
+postgres=# create schema ck;
+CREATE SCHEMA
+postgres=# select nspname from pg_catalog.pg_namespace;
+      nspname       
+--------------------
+ pg_toast
+ pg_temp_1
+ pg_toast_temp_1
+ pg_catalog
+ public
+ information_schema
+ ck
+(7 rows)
+
+
+
+
+Create Table (in a schema):
+---------------------------
+Create table <tablename> (..columns and constraints..);
+
+Example:
+========
+postgres=# create table ck.employee( emp_id integer PRIMARY KEY, emp_name varchar(50));
+CREATE TABLE
+postgres=# select * from ck.employee;
+ emp_id | emp_name 
+--------+----------
+(0 rows)
+
+
+
+
+Insert into table:
+------------------
+Insert into <schemaname>.<tablename> values(..<values>..);
+
+Example:
+========
+postgres=# insert into ck.employee values(1, 'Karthik');
+INSERT 0 1
+postgres=# insert into ck.employee values(2, 'Aarthi');
+INSERT 0 1
+postgres=# insert into ck.employee values(3, 'Sanjeev');
+INSERT 0 1
+postgres=# insert into ck.employee values(4, 'Archana');
+INSERT 0 1
+postgres=# select * from ck.employee;
+ emp_id | emp_name 
+--------+----------
+      1 | Karthik
+      2 | Aarthi
+      3 | Sanjeev
+      4 | Archana
+(4 rows)
+
+
+
+Execute sql commands from a .sql file:
+=======================================
+psql -U <username> -d <database-name> -a -f "<absolute-filename>" .  (-a is to print all lines in sql file to console)
+
+psql -U karthikchejerla -d employeedb -a -f "employees.sql"
+
+
+
+Quit:
+-----
+\q

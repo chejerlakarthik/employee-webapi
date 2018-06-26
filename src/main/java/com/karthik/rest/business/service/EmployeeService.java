@@ -13,33 +13,29 @@ import com.karthik.rest.exception.DoesNotExistException;
 
 public class EmployeeService {
 	
-	public EmployeeService() {
-		EmployeeDao.employees.put(1L, new Employee(1L, "Karthik"));
-		EmployeeDao.employees.put(2L, new Employee(2L, "Aarthi"));
-	}
+	private EmployeeDao employeeDao = new EmployeeDao();
 
 	public Employee add(Employee employee) {
 		employee.setLastModified(new Date());
-		EmployeeDao.employees.put(employee.getEmpId(), employee);
-		return employee;
+		return employeeDao.addEmployee(employee);
 	}
 	
 	public Employee read(Long empId) throws DoesNotExistException {
-		Employee employee = EmployeeDao.employees.get(empId);
+		Employee employee = employeeDao.get(empId);
 		if (employee == null)
 			throw new DoesNotExistException("Employee " + empId +" does not exist");
 		return employee;
 	}
 	
 	public List<Employee> readAll() {
-		return EmployeeDao.getEmployees();
+		return employeeDao.getAll();
 	}
 	
 	public List<Employee> readAllFilteredByYear(Integer year) {
 		assert (year != null && year > 0);
 		List<Employee> employeesByYear = new ArrayList<Employee>();
 
-		for (Employee employee : EmployeeDao.getEmployees()) {
+		for (Employee employee : employeeDao.getAll()) {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(employee.getLastModified());
 			if (cal.get(Calendar.YEAR) == year) {
@@ -52,14 +48,14 @@ public class EmployeeService {
 	public List<Employee> readAllPaginated(Integer start, Integer pagesize) {
 		assert (start > 0 && pagesize > 0);
 		
-		if (pagesize > EmployeeDao.getEmployees().size())
-			pagesize = EmployeeDao.getEmployees().size();
+		if (pagesize > employeeDao.getAll().size())
+			pagesize = employeeDao.getAll().size();
 		
-		return EmployeeDao.getEmployees().subList(start-1, start + pagesize -1);
+		return employeeDao.getAll().subList(start-1, start + pagesize -1);
 	}
 	
 	public Employee update(Long empId, Employee employee) throws DoesNotExistException, BadRequestException {
-		Employee emp = EmployeeDao.employees.get(empId);
+		Employee emp = employeeDao.get(empId);
 		
 		if (emp == null) {
 			throw new DoesNotExistException("Employee " + empId +" does not exist");
@@ -70,13 +66,12 @@ public class EmployeeService {
 		}
 		
 		employee.setLastModified(new Date());
-		EmployeeDao.employees.put(empId, employee);
 		
-		return employee; 
+		return employeeDao.update(employee); 
 	}
 	
 	public void delete(Long empId) {
-		EmployeeDao.employees.remove(empId);
+		employeeDao.remove(empId);
 	}
 
 }

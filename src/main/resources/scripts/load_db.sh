@@ -1,0 +1,1 @@
+psql -U karthikchejerla -d employeedb -a -f "sql/data.sql"
