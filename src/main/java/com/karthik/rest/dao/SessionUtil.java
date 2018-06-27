@@ -22,12 +22,20 @@ public class SessionUtil {
 		return instance;
 	}
 	
-	public static Session getSession() {
+	private static Session getSession() {
 		Session session = getInstance().sessionFactory.getCurrentSession();
-		if (session == null) {
-			session = getInstance().sessionFactory.openSession();
-		}
 		return session;
+	}
+	
+	public static Session beginTransaction() {
+		Session session = getSession();
+		session.beginTransaction();
+		return session;
+	}
+	
+	public static void commitTransaction(Session session) {
+		session.getTransaction().commit();
+		//session.close();
 	}
 
 }

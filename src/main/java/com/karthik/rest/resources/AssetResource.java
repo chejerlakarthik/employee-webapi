@@ -53,8 +53,10 @@ public class AssetResource {
 	}
 	
 	@POST
-	public Asset tagAssetToEmployee(@PathParam(value = "empId") Long empId, Asset asset) {
-		return assetService.tagAssetToEmployee(empId, asset);
+	public Asset tagAssetToEmployee(@PathParam(value = "empId") Long empId, Asset asset) throws DoesNotExistException {
+		 Asset savedAsset = assetService.tagAssetToEmployee(empId, asset);
+		 System.out.println(savedAsset);
+		 return savedAsset;
 	}
 	
 	/**

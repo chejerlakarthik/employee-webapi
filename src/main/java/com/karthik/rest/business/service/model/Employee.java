@@ -1,17 +1,19 @@
 package com.karthik.rest.business.service.model;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 @XmlRootElement @Entity @Table(name="EMPLOYEE")
 public class Employee extends RestResource {
@@ -21,8 +23,11 @@ public class Employee extends RestResource {
 	private String empName;
 	private Date lastModified;
 	
-	@OneToMany(mappedBy="employee", cascade=CascadeType.ALL, fetch=FetchType.EAGER)
-	private Collection<Asset> assets;
+	@OneToMany(mappedBy = "employee", 
+			   cascade = CascadeType.ALL,
+			   orphanRemoval = true)
+	@XmlTransient @JsonbTransient
+	private List<Asset> assets = new ArrayList<Asset>();
 	
 	// The no-arg constructor is a must for Serialization - JSON or XML.
 	public Employee() {}
@@ -57,11 +62,11 @@ public class Employee extends RestResource {
 		this.lastModified = lastModified;
 	}
 
-	public Collection<Asset> getAssets() {
+	public List<Asset> getAssets() {
 		return assets;
 	}
 
-	public void setAssets(Collection<Asset> assets) {
+	public void setAssets(List<Asset> assets) {
 		this.assets = assets;
 	}
 
